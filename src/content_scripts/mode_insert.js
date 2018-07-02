@@ -1,3 +1,22 @@
+/* eslint-disable
+    class-methods-use-this,
+    constructor-super,
+    max-len,
+    no-cond-assign,
+    no-constant-condition,
+    no-eval,
+    no-nested-ternary,
+    no-new,
+    no-param-reassign,
+    no-plusplus,
+    no-return-assign,
+    no-this-before-super,
+    no-undef,
+    no-underscore-dangle,
+    no-use-before-define,
+*/
+// TODO: This file was created by bulk-decaffeinate.
+// Fix any style issues and re-enable lint.
 /*
  * decaffeinate suggestions:
  * DS001: Remove Babel/TypeScript constructor workaround
@@ -13,18 +32,18 @@
 
 class InsertMode extends Mode {
   static initClass() {
-  
     // Static stuff. This allows PostFindMode to suppress the permanently-installed InsertMode instance.
     this.suppressedEvent = null;
   }
+
   constructor(options) {
     // There is one permanently-installed instance of InsertMode.  It tracks focus changes and
     // activates/deactivates itself (by setting @insertModeLock) accordingly.
     {
       // Hack: trick Babel/TypeScript into allowing this before super.
       if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.slice(thisFn.indexOf('return') + 6 + 1, thisFn.indexOf(';')).trim();
+      const thisFn = (() => this).toString();
+      const thisName = thisFn.slice(thisFn.indexOf('return') + 6 + 1, thisFn.indexOf(';')).trim();
       eval(`${thisName} = this;`);
     }
     if (options == null) { options = {}; }
@@ -33,7 +52,7 @@ class InsertMode extends Mode {
     // If truthy, then we were activated by the user (with "i").
     this.global = options.global;
 
-    const handleKeyEvent = event => {
+    const handleKeyEvent = (event) => {
       let needle;
       if (!this.isActive(event)) { return this.continueBubbling; }
 
@@ -42,13 +61,11 @@ class InsertMode extends Mode {
       if ((activeElement === document.body) && activeElement.isContentEditable) { return this.passEventToPage; }
 
       // Check for a pass-next-key key.
-      if ((needle = KeyboardUtils.getKeyCharString(event), Array.from(Settings.get("passNextKeyKeys")).includes(needle))) {
-        new PassNextKeyMode;
-
+      if ((needle = KeyboardUtils.getKeyCharString(event), Array.from(Settings.get('passNextKeyKeys')).includes(needle))) {
+        new PassNextKeyMode();
       } else if ((event.type === 'keydown') && KeyboardUtils.isEscape(event)) {
         if (DomUtils.isFocusable(activeElement)) { activeElement.blur(); }
         if (!this.permanent) { this.exit(); }
-
       } else {
         return this.passEventToPage;
       }
@@ -57,10 +74,10 @@ class InsertMode extends Mode {
     };
 
     const defaults = {
-      name: "insert",
-      indicator: !this.permanent && !Settings.get("hideHud")  ? "Insert mode" : undefined,
+      name: 'insert',
+      indicator: !this.permanent && !Settings.get('hideHud') ? 'Insert mode' : undefined,
       keypress: handleKeyEvent,
-      keydown: handleKeyEvent
+      keydown: handleKeyEvent,
     };
 
     super(extend(defaults, options));
@@ -82,6 +99,7 @@ class InsertMode extends Mode {
     }
     return activeElement;
   }
+
   static suppressEvent(event) { return this.suppressedEvent = event; }
 }
 InsertMode.initClass();
@@ -94,13 +112,11 @@ class PassNextKeyMode extends Mode {
     let keyDownCount = 0;
 
     super({
-      name: "pass-next-key",
-      indicator: "Pass next key.",
+      name: 'pass-next-key',
+      indicator: 'Pass next key.',
       // We exit on blur because, once we lose the focus, we can no longer track key events.
       exitOnBlur: window,
-      keypress: () => {
-        return this.passEventToPage;
-      },
+      keypress: () => this.passEventToPage,
 
       keydown: () => {
         seenKeyDown = true;
@@ -110,14 +126,14 @@ class PassNextKeyMode extends Mode {
 
       keyup: () => {
         if (seenKeyDown) {
-          if (!(0 < --keyDownCount)) {
-            if (!(0 < --count)) {
+          if (!(--keyDownCount > 0)) {
+            if (!(--count > 0)) {
               this.exit();
             }
           }
         }
         return this.passEventToPage;
-      }
+      },
     });
   }
 }
